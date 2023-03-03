@@ -34,12 +34,12 @@
       }
 
 
-      const Carta = (key, id, caraFrontal, estaVolteada, funVoltearCarta) => {
+      const Carta = (props) => {
         const caraTrasera = 'imagenes/parteTrasera.png'
         const [volteada, setVolteada] = React.useState(false)
 
-        const voltear = e => {
-          const valor = funVoltearCarta(caraFrontal, id);
+        const voltear = () => {
+          const valor = props.funVoltearCarta();
           if (valor != 0){
             setVolteada(!volteada);
           }
@@ -58,7 +58,7 @@
             }}
           >
             <img 
-              src={volteada ? key.caraFrontal : caraTrasera}
+              src={volteada ? props.caraFrontal : caraTrasera}
               style={{
                 height: '100%',
                 width: '100%',
@@ -112,7 +112,9 @@
             setCarta2({ caraFrontal, id });
           }
           return 1;
+          
         }
+        
 
         return (
           
@@ -125,10 +127,11 @@
           >
             {
               cartas.map ((carta) => 
-                <Carta key = {carta.id} id = {carta.id} 
+                <Carta key = {carta.id} 
+                id = {carta.id} 
                 caraFrontal = {carta.imagen} 
                 estaVolteada = {carta.volteada}
-                funVoltearCarta = {voltearCarta} />
+                funVoltearCarta = {() => voltearCarta(carta.id, carta.imagen)} />
               )
             }
             <ContadorMovimientos movimientos={movimientos}/>
