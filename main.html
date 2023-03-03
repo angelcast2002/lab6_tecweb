@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <!--(40 puntos) [Criterio subjetivo] Según qué tan interesante es el diseño de su interfaz (en este caso incluye el diseño de las tarjetas)
+      (10 puntos) Por entregar un link a su trabajo en git 
+      (5 puntos) Por utilizar css grid
+      (20 puntos) Por que las tarjetas estén en posiciones random en el grid cada vez que se cargue la pantalla
+
+  -->
+  <head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const ContadorMovimientos = ({movimientos}) => {
+        return (
+          <div
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              color: 'white',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              textShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+            }}
+          >
+            <h1>Movimientos: {movimientos}</h1>
+          </div>
+        )
+      }
+
+
+      const Carta = (key, id, caraFrontal, estaVolteada, funVoltearCarta) => {
+        const caraTrasera = 'imagenes/parteTrasera.png'
+        const [volteada, setVolteada] = React.useState(false)
+
+        const voltear = e => {
+          const valor = funVoltearCarta(caraFrontal, id);
+          if (valor != 0){
+            setVolteada(!volteada);
+          }
+          
+        }
+        
+        return (
+          <div
+            style={{
+              display: 'inline-block',
+              margin: '5px',
+              height: 'calc(200px - 10px)',
+              width: 'calc(250px - 10px)',
+              cursor: 'pointer',
+              
+            }}
+          >
+            <img 
+              src={volteada ? key.caraFrontal : caraTrasera}
+              style={{
+                height: '100%',
+                width: '100%',
+                objectFit: 'cover',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+              }}
+              onClick={voltear}
+            /> 
+          </div>
+        )
+      }
+
+      const CardContainer = () => {
+        const imagenes = ['imagenes/img1.png','imagenes/img2.png','imagenes/img3.png','imagenes/img4.png','imagenes/img5.png','imagenes/img6.png']
+        const [cartas, setCartas] = React.useState([]);
+        const [movimientos, setMovimientos] = React.useState(0);
+        const [carta1, setCarta1] = React.useState({});
+        const [carta2, setCarta2] = React.useState({});
+
+        const shuffleArray = (array) => {
+          for (let i = array.length - 1; i > 0; i--) {
+              let j = Math.floor(Math.random() * (i + 1));
+              let temp = array[i];
+              array[i] = array[j];
+              array[j] = temp;
+          }
+        }
+
+        React.useEffect(() => {
+          shuffleArray(imagenes);
+          const cartas = []
+          for (let i = 0; i < 12; i++) {
+            cartas.push({
+              id: i,
+              imagen: imagenes[i % 6],
+              volteada: false,
+            })
+          }
+          setCartas(cartas)
+        }, [])
+
+        const voltearCarta = (caraFrontal, id) => {
+          if (carta1.caraFrontal === caraFrontal && carta1.id === id){
+            return 0;
+          }
+          if (!carta1.caraFrontal){
+            setCarta1({ caraFrontal, id });
+          }
+          else if (!carta2.caraFrontal){
+            setCarta2({ caraFrontal, id });
+          }
+          return 1;
+        }
+
+        return (
+          
+          <div
+            tabIndex={0}
+            style={{ 
+              width: '1000px',
+              height: '600px'
+            }}
+          >
+            {
+              cartas.map ((carta) => 
+                <Carta key = {carta.id} id = {carta.id} 
+                caraFrontal = {carta.imagen} 
+                estaVolteada = {carta.volteada}
+                funVoltearCarta = {voltearCarta} />
+              )
+            }
+            <ContadorMovimientos movimientos={movimientos}/>
+          </div>
+        )
+      }
+      
+      const Fondo = () => {
+        return (
+          <div
+            style={{
+              background: 'skyblue',
+              height: '100vh',
+              width: '100vw',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            <CardContainer />
+          </div>
+        )
+      }
+      
+
+      const root = ReactDOM.createRoot(document.getElementById('root'))
+      root.render(<Fondo />)
+
+    </script>
+  </body>
+</html>
