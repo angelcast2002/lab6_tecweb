@@ -34,12 +34,20 @@
       }
 
 
-      const Carta = (props) => {
+      const Carta = ({ id, caraFrontal, estaVolteada, 
+        funVoltearCarta, cartasPorVoltear, cartasDesactivadas}) => {
         const caraTrasera = 'imagenes/parteTrasera.png'
         const [volteada, setVolteada] = React.useState(false)
 
+        React.useEffect(() => {
+          console.log(cartasPorVoltear)
+          if (cartasPorVoltear.includes(id)){
+            setTimeout(() => setVolteada(false), 500);
+          }
+        }, [cartasPorVoltear]);
+
         const voltear = () => {
-          const valor = props.funVoltearCarta();
+          const valor = funVoltearCarta();
           if (valor != 0){
             setVolteada(!volteada);
           }
@@ -58,7 +66,7 @@
             }}
           >
             <img 
-              src={volteada ? props.caraFrontal : caraTrasera}
+              src={volteada ? caraFrontal : caraTrasera}
               style={{
                 height: '100%',
                 width: '100%',
@@ -73,11 +81,17 @@
       }
 
       const CardContainer = () => {
-        const imagenes = ['imagenes/img1.png','imagenes/img2.png','imagenes/img3.png','imagenes/img4.png','imagenes/img5.png','imagenes/img6.png']
+        const imagenes = ['imagenes/img1.png','imagenes/img2.png',
+        'imagenes/img3.png','imagenes/img4.png',
+        'imagenes/img5.png','imagenes/img6.png']
         const [cartas, setCartas] = React.useState([]);
         const [movimientos, setMovimientos] = React.useState(0);
         const [carta1, setCarta1] = React.useState({});
         const [carta2, setCarta2] = React.useState({});
+
+        const [cartasPorVoltear, setCartasPorVoltear] = React.useState([]);
+        const [cartasDesactivadas, setCartasDesactivadas] = React.useState([]);
+
 
         const shuffleArray = (array) => {
           for (let i = array.length - 1; i > 0; i--) {
@@ -99,7 +113,11 @@
             })
           }
           setCartas(cartas)
-        }, [])
+        }, []);
+
+        React.useEffect(() => {
+          
+        }, [carta2]);
 
         const voltearCarta = (caraFrontal, id) => {
           if (carta1.caraFrontal === caraFrontal && carta1.id === id){
@@ -114,6 +132,28 @@
           return 1;
           
         }
+
+        const checkearCartas = () => {
+          if (carta1.caraFrontal === carta2.caraFrontal){
+            console.log('Entro en bucle')
+            const cartasIguales = carta1.caraFrontal === carta2.caraFrontal;
+            cartasIguales ? desactivarCartas() : voltearCartas();
+          }
+        }
+
+        const desactivarCartas = () => {
+          setCartasDesactivadas([carta1.id, carta2.id]);
+          resetCartas();
+        };
+        const voltearCartas = () => {
+          setCartasPorVoltear([carta1.id, carta2.id]);
+          resetCartas();
+        };
+
+        const resetCartas =  () => {
+          setCarta1({});
+          setCarta2({});
+        };
         
 
         return (
@@ -131,7 +171,10 @@
                 id = {carta.id} 
                 caraFrontal = {carta.imagen} 
                 estaVolteada = {carta.volteada}
-                funVoltearCarta = {() => voltearCarta(carta.id, carta.imagen)} />
+                funVoltearCarta = {() => voltearCarta(carta.id, carta.imagen)} 
+                cartasPorVoltear = {cartasPorVoltear}
+                cartasDesactivadas = {cartasDesactivadas}
+                />
               )
             }
             <ContadorMovimientos movimientos={movimientos}/>
