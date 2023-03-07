@@ -4,7 +4,9 @@
       (10 puntos) Por entregar un link a su trabajo en git 
       (5 puntos) Por utilizar css grid
       (20 puntos) Por que las tarjetas estén en posiciones random en el grid cada vez que se cargue la pantalla
-
+      (10 puntos) Por llevar un contador de los movimientos que le ha tomado al jugador resolver el juego (siempre debe estar visible)
+      (10 puntos) Por animar el flip de las tarjetas
+      
   -->
   <head>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -33,18 +35,45 @@
         )
       }
 
+      const FinDelJuego = ({movimientos,visibilidad}) => {
+        return (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              color: 'white',
+              fontSize: '30px',
+              fontWeight: 'bold',
+              textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+              display: visibilidad ? 'block' : 'none'
+            }}
+          >
+            <h1>¡Felicidades!</h1>
+            <h2>Has terminado el juego en {movimientos} movimientos</h2>
+          </div>
+        )
+      }
+
 
       const Carta = ({ id, caraFrontal, estaVolteada, 
         funVoltearCarta, cartasPorVoltear, cartasDesactivadas}) => {
         const caraTrasera = 'imagenes/parteTrasera.png'
         const [volteada, setVolteada] = React.useState(false)
+        const [desactivada, setDesactivada] = React.useState(true)
 
         React.useEffect(() => {
-          console.log(cartasPorVoltear)
           if (cartasPorVoltear.includes(id)){
-            setTimeout(() => setVolteada(false), 500);
+            setTimeout(() => setVolteada(false), 700);
           }
         }, [cartasPorVoltear]);
+
+        React.useEffect(() => {
+          if (cartasDesactivadas.includes(id)){
+            setDesactivada(false);
+          }
+        }, [cartasDesactivadas]);
 
         const voltear = () => {
           const valor = funVoltearCarta();
@@ -53,6 +82,10 @@
           }
           
         }
+
+        const animacionVuelta = {
+          transform: volteada ? 'rotateY(180deg)' : ''
+        };
         
         return (
           <div
@@ -61,8 +94,7 @@
               margin: '5px',
               height: 'calc(200px - 10px)',
               width: 'calc(250px - 10px)',
-              cursor: 'pointer',
-              
+              cursor: 'pointer'
             }}
           >
             <img 
@@ -72,9 +104,18 @@
                 width: '100%',
                 objectFit: 'cover',
                 borderRadius: '10px',
-                boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+                boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)',
+                transition: 'transform 0.3s ease-in-out',
+                ...animacionVuelta,
+                
               }}
-              onClick={voltear}
+              onClick={desactivada ? voltear : null}
+              onMouseOver={(event) => {
+                event.target.style.transform = 'scale(1.05)';
+              }}
+              onMouseOut={(event) => {
+                event.target.style.transform = 'scale(1)';
+              }}
             /> 
           </div>
         )
@@ -91,6 +132,7 @@
 
         const [cartasPorVoltear, setCartasPorVoltear] = React.useState([]);
         const [cartasDesactivadas, setCartasDesactivadas] = React.useState([]);
+        const [finDelJuego, setFinDelJuego] = React.useState(false);
 
 
         const shuffleArray = (array) => {
@@ -116,26 +158,36 @@
         }, []);
 
         React.useEffect(() => {
-          
-        }, [carta2]);
+          checkearCartas();
+        }, [carta2.id]);
+
+        React.useEffect(() => {
+          if (cartasDesactivadas.length === 12){
+            setFinDelJuego(true);
+          }
+        }, [cartasDesactivadas]);
 
         const voltearCarta = (caraFrontal, id) => {
           if (carta1.caraFrontal === caraFrontal && carta1.id === id){
             return 0;
           }
           if (!carta1.caraFrontal){
-            setCarta1({ caraFrontal, id });
+            setCarta1({ caraFrontal: caraFrontal, id: id });
+            console.log('linea127 - regresaVacio?', carta1.id);
+            setMovimientos(movimientos + 1);
           }
           else if (!carta2.caraFrontal){
-            setCarta2({ caraFrontal, id });
+            console.log('linea130 - regresaVacio?', carta1.id);
+            setCarta2({ caraFrontal: caraFrontal, id: id });
+            setMovimientos(movimientos + 1);
+            console.log('linea132 - carta 2 regresaVacio?', carta2.id);
           }
           return 1;
           
         }
 
         const checkearCartas = () => {
-          if (carta1.caraFrontal === carta2.caraFrontal){
-            console.log('Entro en bucle')
+          if (carta1.caraFrontal && carta2.caraFrontal){
             const cartasIguales = carta1.caraFrontal === carta2.caraFrontal;
             cartasIguales ? desactivarCartas() : voltearCartas();
           }
@@ -171,13 +223,14 @@
                 id = {carta.id} 
                 caraFrontal = {carta.imagen} 
                 estaVolteada = {carta.volteada}
-                funVoltearCarta = {() => voltearCarta(carta.id, carta.imagen)} 
+                funVoltearCarta = {() => voltearCarta(carta.imagen, carta.id)} 
                 cartasPorVoltear = {cartasPorVoltear}
                 cartasDesactivadas = {cartasDesactivadas}
                 />
               )
             }
             <ContadorMovimientos movimientos={movimientos}/>
+            <FinDelJuego visibilidad = {finDelJuego} movimientos = {movimientos}/>
           </div>
         )
       }
