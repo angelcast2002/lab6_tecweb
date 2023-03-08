@@ -13,7 +13,14 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
-  <body>
+  <body
+    style="
+      background: linear-gradient(45deg, #f5f7fa, #c3cfe2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;"
+  >
     <div id="root"></div>
 
     <script type="text/babel">
@@ -35,7 +42,7 @@
         )
       }
 
-      const FinDelJuego = ({movimientos,visibilidad}) => {
+      const FinDelJuego = ({movimientos}) => {
         return (
           <div
             style={{
@@ -47,11 +54,28 @@
               fontSize: '30px',
               fontWeight: 'bold',
               textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-              display: visibilidad ? 'block' : 'none'
+              display: 'block',
+              textAlign: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              borderRadius: '20px',
+              padding: '20px',
+              boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
             }}
           >
-            <h1>¡Felicidades!</h1>
-            <h2>Has terminado el juego en {movimientos} movimientos</h2>
+            <h1
+              style={{
+                fontSize: '50px',
+                fontWeight: 'bold',
+                textShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+              }}
+            >Felicidades!</h1>
+            <h2
+              style={{
+                fontSize: '30px',
+                fontWeight: 'bold',
+                textShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+              }}
+            >Has terminado el juego en {movimientos} movimientos</h2>
           </div>
         )
       }
@@ -132,7 +156,6 @@
 
         const [cartasPorVoltear, setCartasPorVoltear] = React.useState([]);
         const [cartasDesactivadas, setCartasDesactivadas] = React.useState([]);
-        const [finDelJuego, setFinDelJuego] = React.useState(false);
 
 
         const shuffleArray = (array) => {
@@ -161,11 +184,6 @@
           checkearCartas();
         }, [carta2.id]);
 
-        React.useEffect(() => {
-          if (cartasDesactivadas.length === 12){
-            setFinDelJuego(true);
-          }
-        }, [cartasDesactivadas]);
 
         const voltearCarta = (caraFrontal, id) => {
           if (carta1.caraFrontal === caraFrontal && carta1.id === id){
@@ -194,7 +212,7 @@
         }
 
         const desactivarCartas = () => {
-          setCartasDesactivadas([carta1.id, carta2.id]);
+          setCartasDesactivadas((car) => [...car, carta1.id, carta2.id]);
           resetCartas();
         };
         const voltearCartas = () => {
@@ -207,7 +225,7 @@
           setCarta2({});
         };
         
-
+        console.log('linea 180 - finDelJuego', cartasDesactivadas.length);
         return (
           
           <div
@@ -230,7 +248,7 @@
               )
             }
             <ContadorMovimientos movimientos={movimientos}/>
-            <FinDelJuego visibilidad = {finDelJuego} movimientos = {movimientos}/>
+            { cartasDesactivadas.length === 12 ? <FinDelJuego movimientos = {movimientos}/>: console.log('linea 180 - finDelJuego', cartasDesactivadas.length)}
           </div>
         )
       }
