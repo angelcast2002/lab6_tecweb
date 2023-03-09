@@ -148,7 +148,8 @@
       const CardContainer = () => {
         const imagenes = ['imagenes/img1.png','imagenes/img2.png',
         'imagenes/img3.png','imagenes/img4.png',
-        'imagenes/img5.png','imagenes/img6.png']
+        'imagenes/img5.png','imagenes/img6.png',
+        'imagenes/img7.png','imagenes/img8.png']
         const [cartas, setCartas] = React.useState([]);
         const [movimientos, setMovimientos] = React.useState(0);
         const [carta1, setCarta1] = React.useState({});
@@ -170,10 +171,10 @@
         React.useEffect(() => {
           shuffleArray(imagenes);
           const cartas = []
-          for (let i = 0; i < 12; i++) {
+          for (let i = 0; i < 16; i++) {
             cartas.push({
               id: i,
-              imagen: imagenes[i % 6],
+              imagen: imagenes[i % 8],
               volteada: false,
             })
           }
@@ -232,7 +233,7 @@
             tabIndex={0}
             style={{ 
               width: '1000px',
-              height: '600px'
+              height: '800px'
             }}
           >
             {
@@ -248,7 +249,7 @@
               )
             }
             <ContadorMovimientos movimientos={movimientos}/>
-            { cartasDesactivadas.length === 12 ? <FinDelJuego movimientos = {movimientos}/>: console.log('linea 180 - finDelJuego', cartasDesactivadas.length)}
+            { cartasDesactivadas.length === 16 ? <FinDelJuego movimientos = {movimientos}/>: console.log('linea 180 - finDelJuego', cartasDesactivadas.length)}
           </div>
         )
       }
